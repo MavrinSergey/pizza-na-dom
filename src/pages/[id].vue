@@ -6,36 +6,15 @@ const route = useRoute();
 const pizza = usePizzaStore().getPizzaById(`${route.params.id}`);
 const selectedTopping = ref([])
 const selectedSize = ref('small')
-const finalPrice = pizza?.params.small.price
 
-const sizes = computed(() => {
-  let resultArr = [];
-  Object.keys(pizza?.params).forEach((item: string) => {
-    resultArr.push({name: item, value: pizza?.params[item].sizeInSm})
-  })
-  changeFinalPrice();
-  return resultArr;
-})
+const sizes = computed(() =>['small','medium','large'].map(param=>({name:param,value:pizza?.params[param].sizeInSm})))
 
-const topings = computed(() => {
-  let resultArr = [];
-  pizza?.params[selectedSize.value].toppings.forEach((item: object) => {
-    resultArr.push(item)
-  })
-  changeFinalPrice();
-  return resultArr;
-})
+const topings = computed(() =>
+ pizza?.params[selectedSize.value].toppings.map((item: object) =>  item)
+)
 
-const changeFinalPrice = () => {
-  const res = pizza?.params[selectedSize.value].toppings.reduce((acc, item) => {
-    if (selectedTopping.value.includes(item.name)) {
-      return acc + item.price;
-    } else {
-      return acc;
-    }
-  }, 0);
-  finalPrice.value = pizza?.params[selectedSize.value].price + res
-}
+const finalPrice = computed(() => pizza?.params[selectedSize.value].toppings.reduce((acc, topping) => 
+    selectedTopping.value.includes(topping.name) ? acc + topping.price: acc, pizza?.params[selectedSize.value].price))
 </script>
 
 <template>
